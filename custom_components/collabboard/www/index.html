@@ -43,9 +43,10 @@
     .toolbar { height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 4px; padding: 0 12px; z-index: 15; }
     .tool-group { display: flex; align-items: center; gap: 2px; padding: 0 6px; border-right: 1px solid var(--border); }
     .tool-group:last-child { border-right: none; }
-    .tool-btn { width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; display: grid; place-items: center; transition: all 0.12s; position: relative; font-size: 13px; font-weight: 600; }
+    .tool-btn { width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; display: grid; place-items: center; transition: all 0.12s; position: relative; }
     .tool-btn:hover { background: var(--surface-2); color: var(--text); }
     .tool-btn.active { background: rgba(99,102,241,0.2); color: var(--accent-hover); }
+    .tool-btn svg { width: 18px; height: 18px; display: block; pointer-events: none; }
     .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
     .color-swatch.active { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
     .stroke-control { display: flex; align-items: center; gap: 6px; padding: 0 8px; }
@@ -90,8 +91,20 @@
     </aside>
     <div class="main">
       <div class="toolbar" id="toolbar">
-        <div class="tool-group"><button class="tool-btn active" data-tool="select">V</button><button class="tool-btn" data-tool="pan">H</button></div>
-        <div class="tool-group"><button class="tool-btn" data-tool="pen">P</button><button class="tool-btn" data-tool="rect">R</button><button class="tool-btn" data-tool="ellipse">O</button><button class="tool-btn" data-tool="line">L</button><button class="tool-btn" data-tool="arrow">A</button><button class="tool-btn" data-tool="text">T</button><button class="tool-btn" data-tool="sticky">S</button><button class="tool-btn" data-tool="eraser">E</button></div>
+        <div class="tool-group">
+          <button class="tool-btn active" data-tool="select" title="Select (V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
+          <button class="tool-btn" data-tool="pan" title="Pan (H)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></button>
+        </div>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="pen" title="Pen (P)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg></button>
+          <button class="tool-btn" data-tool="rect" title="Rectangle (R)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></button>
+          <button class="tool-btn" data-tool="ellipse" title="Ellipse (O)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="9" ry="6"/></svg></button>
+          <button class="tool-btn" data-tool="line" title="Line (L)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19L19 5"/></svg></button>
+          <button class="tool-btn" data-tool="arrow" title="Arrow (A)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button>
+          <button class="tool-btn" data-tool="text" title="Text (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></button>
+          <button class="tool-btn" data-tool="sticky" title="Sticky Note (S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/><path d="M15 3v6h6"/></svg></button>
+          <button class="tool-btn" data-tool="eraser" title="Eraser (E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16c-1.5-1.5-1.5-3.5 0-5l7-7c1.5-1.5 3.5-1.5 5 0l5 5"/><path d="M6 11l5 5"/></svg></button>
+        </div>
         <div class="tool-group"><div class="color-swatch active" data-color="#6366f1" style="background:#6366f1"></div><div class="color-swatch" data-color="#ef4444" style="background:#ef4444"></div><div class="color-swatch" data-color="#22c55e" style="background:#22c55e"></div><div class="color-swatch" data-color="#eab308" style="background:#eab308"></div><div class="color-swatch" data-color="#f97316" style="background:#f97316"></div><div class="color-swatch" data-color="#ec4899" style="background:#ec4899"></div><div class="color-swatch" data-color="#ffffff" style="background:#ffffff"></div><div class="color-swatch" data-color="#1a1d24" style="background:#1a1d24; border:1px solid #555"></div></div>
         <div class="tool-group stroke-control"><span style="font-size:11px;color:var(--text-muted)">Stroke</span><input type="range" id="stroke-width" min="1" max="20" value="3" /></div>
       </div>
