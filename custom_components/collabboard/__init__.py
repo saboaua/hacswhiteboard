@@ -21,7 +21,6 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up from configuration.yaml (legacy support)."""
-    # If the user still has "collabboard:" in YAML we register everything
     if DOMAIN in config:
         await _async_setup_common(hass)
     return True
@@ -52,16 +51,14 @@ async def _async_setup_common(hass: HomeAssistant) -> None:
 
 
 async def _async_register_static(hass: HomeAssistant) -> None:
-    """Serve the whiteboard HTML/JS from the best available location."""
+    """Serve the whiteboard from the integration's own www folder (self-contained)."""
+    # Always prefer the files shipped inside the custom_component – this is the
+    # most reliable location after a HACS install.
     candidates = [
-        # Preferred: files that HACS places under www/community
+        Path(__file__).parent / "www",                                    # self-contained
         Path(hass.config.config_dir) / "www" / "community" / "hacswhiteboard" / "www" / "collabboard",
         Path(hass.config.config_dir) / "www" / "community" / "collabboard",
-        # Manual install: config/www/collabboard
         Path(hass.config.config_dir) / "www" / "collabboard",
-        # Files shipped inside the custom_component itself
-        Path(__file__).parent / "www",
-        # Repo-root www when the whole repo is copied
         Path(__file__).parent.parent.parent / "www" / "collabboard",
     ]
 
@@ -74,11 +71,10 @@ async def _async_register_static(hass: HomeAssistant) -> None:
     if root is None:
         _LOGGER.error(
             "CollabBoard static files not found. "
-            "Make sure the integration was installed correctly via HACS."
+            "Reinstall the integration via HACS."
         )
         return
 
-    # Avoid double-registration
     if not hass.data.get(DOMAIN, {}).get("static_registered"):
         await hass.http.async_register_static_paths(
             [
@@ -95,7 +91,6 @@ async def _async_register_static(hass: HomeAssistant) -> None:
 
 def _async_register_panel(hass: HomeAssistant) -> None:
     """Add CollabBoard to the Home Assistant sidebar automatically."""
-    # Remove any previous registration so we can re-register cleanly
     try:
         frontend.async_remove_panel(hass, PANEL_URL_PATH)
     except Exception:  # noqa: BLE001
