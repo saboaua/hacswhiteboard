@@ -1,2 +1,12 @@
-// CollabBoard app is inlined in index.html — this stub avoids SyntaxError from leftover ./app.js references.
-console.warn('app.js stub: board logic is in index.html');
+// CollabBoard loader — assembles split app and runs as module
+const n = 3;
+const texts = await Promise.all(
+  Array.from({length: n}, (_, i) => fetch(new URL(`./app.part${i}.js`, import.meta.url)).then(r => {
+    if (!r.ok) throw new Error('Failed to load app.part' + i + '.js: ' + r.status);
+    return r.text();
+  }))
+);
+const code = texts.join('');
+const blob = new Blob([code], { type: 'text/javascript' });
+const url = URL.createObjectURL(blob);
+await import(url);
