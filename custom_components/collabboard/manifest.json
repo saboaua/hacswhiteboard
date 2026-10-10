@@ -2,11 +2,11 @@
   "domain": "collabboard",
   "name": "CollabBoard Whiteboard",
   "codeowners": ["@saboaua"],
-  "config_flow": false,
-  "dependencies": ["http"],
+  "config_flow": true,
+  "dependencies": ["http", "frontend"],
   "documentation": "https://github.com/saboaua/hacswhiteboard",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/saboaua/hacswhiteboard/issues",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.1.0"
 }
