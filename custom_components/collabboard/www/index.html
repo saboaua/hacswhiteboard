@@ -23,7 +23,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .toolbar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:44px}
 .tool-group{display:flex;align-items:center;gap:2px;padding:0 4px;border-right:1px solid var(--border)}
 .tool-group:last-child{border-right:none}
-.tool-btn{width:32px;height:32px;border:none;border-radius:6px;background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tool-btn{width:32px;height:32px;border:none;border-radius:6px;background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
 .tool-btn:hover{background:var(--surface-2)}.tool-btn.active{background:var(--accent);color:#fff}
 .color-swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
 .color-swatch.active{border-color:var(--text);box-shadow:0 0 0 1px var(--accent)}
@@ -73,7 +73,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .board-info{font-size:11px;color:var(--text-muted)}code{background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:10px}
 .empty-comments{font-size:11px;color:var(--text-muted);text-align:center;padding:10px 6px}
 .stroke-control{display:flex;align-items:center;gap:4px;padding:0 4px}.stroke-control input[type=range]{width:50px;accent-color:var(--accent)}
-.share-row{display:flex;gap:4px;margin-top:4px}.share-row input{flex:1;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text)}
+.share-row{display:flex;gap:4px;margin-top:4px}.share-row input{flex:1;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:5px;background:var(--text)}
 </style>
 </head>
 <body>
@@ -125,7 +125,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
       <button class="tool-btn" id="undo-btn" title="Undo">↶</button>
       <button class="tool-btn" id="redo-btn" title="Redo">↷</button>
       <button class="tool-btn" id="templates-btn" title="Templates">📋</button>
-      <button class="tool-btn" id="theme-btn" title="Theme">Switch to Light</button>
+      <button class="tool-btn" id="theme-btn" title="Switch to Light">☀️</button>
       <button class="tool-btn" id="export-png-btn" title="Export PNG">📷</button>
       <button class="tool-btn" id="clear-btn" title="Clear board">🗑</button>
       <button class="tool-btn" id="new-board-btn" title="New board">＋</button>
