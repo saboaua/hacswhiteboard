@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>CollabBoard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0f1115;--surface:#1a1d24;--surface-2:#242830;--border:#2e333d;--text:#e8eaed;--text-muted:#9aa0a6;--accent:#6366f1;--danger:#ef4444;--shadow:0 8px 24px rgba(0,0,0,.45)}
+html.light{--bg:#f5f6f8;--surface:#ffffff;--surface-2:#f0f1f3;--border:#e0e2e6;--text:#1a1d24;--text-muted:#5f6368;--accent:#4f46e5;--danger:#dc2626;--shadow:0 8px 24px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+#app{display:flex;flex-direction:column;height:100%}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;width:min(380px,92vw);box-shadow:var(--shadow)}
+.modal h2{font-size:18px;margin-bottom:6px}.modal p{font-size:12px;color:var(--text-muted);margin-bottom:14px}
+.modal label{display:block;font-size:11px;color:var(--text-muted);margin-bottom:3px}
+.modal input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text);font-size:13px;margin-bottom:10px;outline:none}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.btn{padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--accent)}.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.toolbar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:44px}
+.tool-group{display:flex;align-items:center;gap:2px;padding:0 4px;border-right:1px solid var(--border)}
+.tool-group:last-child{border-right:none}
+.tool-btn{width:32px;height:32px;border:none;border-radius:6px;background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tool-btn:hover{background:var(--surface-2)}.tool-btn.active{background:var(--accent);color:#fff}
+.color-swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.color-swatch.active{border-color:var(--text);box-shadow:0 0 0 1px var(--accent)}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-section{padding:10px;border-bottom:1px solid var(--border)}
+.sidebar-section h3{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:6px}
+.user-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 0}
+.avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+#stage-container{width:100%;height:100%}
+.zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:var(--shadow)}
+.zoom-controls button{width:28px;height:28px;border:none;border-radius:5px;background:transparent;color:var(--text);cursor:pointer;font-size:14px}
+.zoom-controls button:hover{background:var(--surface-2)}
+.zoom-label{font-size:11px;min-width:40px;text-align:center;color:var(--text-muted)}
+.toast{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:8px 16px;border-radius:8px;font-size:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+.toast.show{opacity:1}
+.comments-list{flex:1;overflow-y:auto;padding:6px 10px;font-size:12px}
+.comment{padding:6px 0;border-bottom:1px solid var(--border)}
+.comment .meta{font-size:10px;color:var(--text-muted);margin-bottom:2px}
+.comment-compose{display:flex;flex-direction:column;gap:4px;margin-top:5px}
+.comment-compose textarea{width:100%;min-height:44px;resize:vertical;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:5px;color:var(--text);font-size:11px;font-family:inherit;outline:none}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:280px;overflow-y:auto}
+.tpl-card{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;text-align:left}.tpl-card:hover{border-color:var(--accent)}
+.tpl-card h3{font-size:13px;margin-bottom:2px}.tpl-card p{font-size:11px;color:var(--text-muted);margin:0}
+.editor-wrap{position:absolute;z-index:50;display:none;flex-direction:column;gap:4px;min-width:140px;box-shadow:var(--shadow)}
+.editor-wrap.show{display:flex}
+.inline-editor{min-width:120px;min-height:36px;padding:6px 8px;border:2px solid var(--accent);border-radius:5px;background:var(--surface);color:var(--text);font-size:15px;outline:none;resize:both;font-family:inherit}
+.inline-editor.sticky-edit{font-family:Caveat,cursive;font-size:17px;background:#eab308;color:#1a1d24}
+.editor-colors{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:6px}
+.editor-colors .ed-color{width:16px;height:16px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;flex-shrink:0}
+.editor-colors .ed-color:hover,.editor-colors .ed-color.active{border-color:var(--text);box-shadow:0 0 0 1px var(--accent)}
+.editor-colors .ed-label{font-size:10px;color:var(--text-muted);margin-right:2px}
+.editor-colors input[type=color]{width:22px;height:18px;padding:0;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:transparent}
+.ctx-menu{position:fixed;z-index:80;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:4px;display:none}
+.ctx-menu.show{display:block}
+.ctx-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:7px;font-size:12px;cursor:pointer;color:var(--text);border:none;background:transparent;width:100%;font-family:inherit;text-align:left}
+.ctx-item:hover{background:var(--surface-2)}
+.ctx-item.danger{color:var(--danger)}
+.ctx-item .kbd{font-size:10px;color:var(--text-muted)}
+.ctx-sep{height:1px;background:var(--border);margin:4px 6px}.ctx-label{font-size:10px;color:var(--text-muted);padding:4px 10px 2px;text-transform:uppercase;letter-spacing:.04em}.ctx-colors{display:flex;flex-wrap:wrap;gap:5px;padding:4px 10px 8px}.ctx-color{width:18px;height:18px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}.ctx-color:hover,.ctx-color.active{border-color:var(--text);box-shadow:0 0 0 1px var(--accent)}
+.board-info{font-size:11px;color:var(--text-muted)}code{background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:10px}
+.empty-comments{font-size:11px;color:var(--text-muted);text-align:center;padding:10px 6px}
+.stroke-control{display:flex;align-items:center;gap:4px;padding:0 4px}.stroke-control input[type=range]{width:50px;accent-color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="overlay" id="join-modal">
+    <div class="modal">
+      <h2>Join CollabBoard</h2>
+      <p>Collaborative whiteboard with templates & comments.</p>
+      <label style="font-size:11px">Your display name</label>
+      <input id="name-input" type="text" placeholder="e.g. Alex" maxlength="20" autocomplete="off"/>
+      <label style="font-size:11px">Board ID (optional)</label>
+      <input id="board-input" type="text" placeholder="Leave empty for new board" maxlength="40" autocomplete="off"/>
+      <div class="modal-actions"><button class="btn btn-primary" id="join-btn">Join Board</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="template-modal" style="display:none">
+    <div class="modal" style="width:min(480px,94vw)">
+      <h2>Templates</h2>
+      <p>Start from a ready-made layout.</p>
+      <div class="tpl-grid" id="tpl-grid"></div>
+      <div class="modal-actions"><button class="btn" id="tpl-cancel">Cancel</button></div>
+    </div>
+  </div>
+  <div class="toolbar" id="toolbar">
+    <div class="tool-group">
+      <button class="tool-btn active" data-tool="select" title="Select (V)">↖</button>
+      <button class="tool-btn" data-tool="pan" title="Pan (H)">✋</button>
+      <button class="tool-btn" data-tool="pen" title="Pen (P)">✏️</button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle (R)">▭</button>
+      <button class="tool-btn" data-tool="ellipse" title="Ellipse (O)">○</button>
+      <button class="tool-btn" data-tool="line" title="Line (L)">／</button>
+      <button class="tool-btn" data-tool="arrow" title="Arrow (A)">→</button>
+      <button class="tool-btn" data-tool="text" title="Text (T)">T</button>
+      <button class="tool-btn" data-tool="sticky" title="Sticky">📌</button>
+      <button class="tool-btn" data-tool="eraser" title="Eraser">⌫</button>
+    </div>
+    <div class="tool-group" id="color-group">
+      <button class="color-swatch active" data-color="#6366f1" style="background:#6366f1"></button>
+      <button class="color-swatch" data-color="#ef4444" style="background:#ef4444"></button>
+      <button class="color-swatch" data-color="#22c55e" style="background:#22c55e"></button>
+      <button class="color-swatch" data-color="#eab308" style="background:#eab308"></button>
+      <button class="color-swatch" data-color="#f97316" style="background:#f97316"></button>
+      <button class="color-swatch" data-color="#ec4899" style="background:#ec4899"></button>
+      <button class="color-swatch" data-color="#06b6d4" style="background:#06b6d4"></button>
+      <button class="color-swatch" data-color="#ffffff" style="background:#ffffff;border-color:#888"></button>
+    </div>
+    <div class="tool-group stroke-control"><span style="font-size:10px;color:var(--text-muted)">Stroke</span><input type="range" id="stroke-width" min="1" max="20" value="3"/></div>
+    <div class="tool-group">
+      <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">↶</button>
+      <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)">↷</button>
+      <button class="tool-btn" id="tpl-btn" title="Templates">📋</button>
+      <button class="tool-btn" id="theme-btn" title="Theme">🌓</button>
+      <button class="tool-btn" id="export-png-btn" title="Export PNG">📷</button>
+    </div>
+    <div class="tool-group board-info">Board <code id="board-id-label">—</code></div>
+  </div>
+  <div class="main">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h3>You</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar" id="self-avatar">A</div>
+          <input id="self-name" type="text" maxlength="20" style="flex:1;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text);font-size:12px;outline:none"/>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <h3>Online <span id="user-count">(1)</span></h3>
+        <div id="users-list"></div>
+      </div>
+      <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;min-height:0">
+        <h3>Comments <span id="comment-count">(0)</span></h3>
+        <div class="comments-list" id="comments-list"></div>
+        <div class="comment-compose">
+          <textarea id="comment-input" placeholder="@mention or comment…"></textarea>
+          <button class="btn btn-primary" id="comment-send" style="align-self:flex-end">Send</button>
+        </div>
+      </div>
+    </div>
+    <div class="canvas-area">
+      <div class="canvas-wrap" id="canvas-wrap">
+        <div id="stage-container"></div>
+        <div class="zoom-controls"><button id="zoom-out">−</button><span class="zoom-label" id="zoom-label">100%</span><button id="zoom-in">+</button><button id="zoom-fit">⊡</button></div>
+        <div class="editor-wrap" id="editor-wrap">
+          <textarea id="inline-editor" class="inline-editor"></textarea>
+          <div class="editor-colors" id="editor-colors">
+            <span class="ed-label">Text</span>
+            <button type="button" class="ed-color" data-ed-color="#e8eaed" style="background:#e8eaed" title="Light"></button>
+            <button type="button" class="ed-color" data-ed-color="#1a1d24" style="background:#1a1d24" title="Dark"></button>
+            <button type="button" class="ed-color" data-ed-color="#6366f1" style="background:#6366f1" title="Indigo"></button>
+            <button type="button" class="ed-color" data-ed-color="#ef4444" style="background:#ef4444" title="Red"></button>
+            <button type="button" class="ed-color" data-ed-color="#22c55e" style="background:#22c55e" title="Green"></button>
+            <button type="button" class="ed-color" data-ed-color="#eab308" style="background:#eab308" title="Yellow"></button>
+            <button type="button" class="ed-color" data-ed-color="#f97316" style="background:#f97316" title="Orange"></button>
+            <button type="button" class="ed-color" data-ed-color="#ec4899" style="background:#ec4899" title="Pink"></button>
+            <input type="color" id="ed-color-picker" title="Custom text color" value="#e8eaed"/>
+          </div>
+        </div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ctx-menu" id="ctx-menu">
+  <button class="ctx-item" data-act="edit"><span>Edit text</span><span class="kbd">Dbl-click</span></button>
+  <button class="ctx-item" data-act="copy"><span>Copy</span><span class="kbd">Ctrl+C</span></button>
+  <button class="ctx-item" data-act="duplicate"><span>Duplicate</span><span class="kbd">Ctrl+D</span></button>
+  <button class="ctx-item" data-act="paste"><span>Paste</span><span class="kbd">Ctrl+V</span></button>
+  <div class="ctx-sep"></div>
+  <div class="ctx-label" id="ctx-text-color-label">Text color</div>
+  <div class="ctx-colors" id="ctx-text-colors">
+    <button type="button" class="ctx-color" data-text-color="#e8eaed" style="background:#e8eaed" title="Light"></button>
+    <button type="button" class="ctx-color" data-text-color="#1a1d24" style="background:#1a1d24" title="Dark"></button>
+    <button type="button" class="ctx-color" data-text-color="#6366f1" style="background:#6366f1" title="Indigo"></button>
+    <button type="button" class="ctx-color" data-text-color="#ef4444" style="background:#ef4444" title="Red"></button>
+    <button type="button" class="ctx-color" data-text-color="#22c55e" style="background:#22c55e" title="Green"></button>
+    <button type="button" class="ctx-color" data-text-color="#eab308" style="background:#eab308" title="Yellow"></button>
+    <button type="button" class="ctx-color" data-text-color="#f97316" style="background:#f97316" title="Orange"></button>
+    <button type="button" class="ctx-color" data-text-color="#ec4899" style="background:#ec4899" title="Pink"></button>
+  </div>
+  <button class="ctx-item" data-act="apply-toolbar-text-color"><span>Use toolbar color</span><span class="kbd">swatch</span></button>
+  <div class="ctx-sep"></div>
+  <button class="ctx-item" data-act="bring-front"><span>Bring to front</span></button>
+  <button class="ctx-item" data-act="send-back"><span>Send to back</span></button>
+  <div class="ctx-sep"></div>
+  <button class="ctx-item danger" data-act="delete"><span>Delete</span><span class="kbd">Del</span></button>
+</div>
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
