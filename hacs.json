@@ -1,0 +1,7 @@
+{
+  "name": "CollabBoard Whiteboard",
+  "render_readme": true,
+  "domains": ["collabboard"],
+  "homeassistant": "2024.1.0",
+  "iot_class": "local_polling"
+}

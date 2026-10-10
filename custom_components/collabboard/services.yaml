@@ -1,0 +1,2 @@
+# Currently no services – the component only registers the static frontend + panel.
+# Future: create_board, clear_board, etc.

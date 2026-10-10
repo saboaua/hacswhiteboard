@@ -1,0 +1,26 @@
+# Example Lovelace dashboard configuration for testing CollabBoard
+
+title: CollabBoard Test
+views:
+  - title: Whiteboard
+    path: whiteboard
+    icon: mdi:draw
+    cards:
+      - type: custom:collabboard-card
+        title: Family Planning Board
+        board_id: family-home
+        height: 70vh
+        show_header: true
+
+      - type: custom:collabboard-card
+        title: Shopping List
+        board_id: shopping-2026
+        height: 400px
+        show_header: true
+
+      - type: markdown
+        content: |
+          ### How to collaborate
+          1. Open this dashboard on another device / browser
+          2. Use the **same board_id**
+          3. Draw together in real time
