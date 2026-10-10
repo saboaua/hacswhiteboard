@@ -2,10 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0;url=/collabboard-static/index.html">
-  <title>CollabBoard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CollabBoard — Lightweight Collaborative Whiteboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0f1115; --surface: #1a1d24; --surface-2: #242830; --border: #2e333d; --text: #e8eaed; --text-muted: #9aa0a6; --accent: #6366f1; --accent-hover: #818cf8; --danger: #ef4444; --success: #22c55e; --radius: 10px; --shadow: 0 4px 24px rgba(0,0,0,0.4); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    #app { display: flex; height: 100vh; width: 100vw; }
+    .sidebar { width: 280px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 20; }
+    .sidebar-header { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .logo { width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 8px; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+    .sidebar-header h1 { font-size: 16px; font-weight: 600; }
+    .sidebar-header span { font-size: 11px; color: var(--text-muted); display: block; }
+    .section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px; }
+    .user-self { display: flex; align-items: center; gap: 10px; background: var(--surface-2); padding: 10px 12px; border-radius: var(--radius); }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 13px; color: #fff; flex-shrink: 0; }
+    .user-self input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 14px; font-weight: 500; outline: none; }
+    .users-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
+    .user-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+    .user-item .name { font-size: 13px; font-weight: 500; flex: 1; }
+    .user-item .role { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--surface-2); color: var(--text-muted); }
+    .user-item .role.editor { background: rgba(99,102,241,0.2); color: var(--accent-hover); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+    .board-info { font-size: 12px; color: var(--text-muted); word-break: break-all; }
+    .board-info code { background: var(--surface-2); padding: 2px 6px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 11px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+    .btn-block { width: 100%; }
+    .btn-sm { padding: 6px 10px; font-size: 12px; }
+    .share-row { display: flex; gap: 8px; margin-top: 10px; }
+    .share-row input { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 12px; outline: none; }
+    .main { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
+    .toolbar { height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 4px; padding: 0 12px; z-index: 15; }
+    .tool-group { display: flex; align-items: center; gap: 2px; padding: 0 6px; border-right: 1px solid var(--border); }
+    .tool-group:last-child { border-right: none; }
+    .tool-btn { width: 36px; height: 36px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; display: grid; place-items: center; transition: all 0.12s; position: relative; font-size: 13px; font-weight: 600; }
+    .tool-btn:hover { background: var(--surface-2); color: var(--text); }
+    .tool-btn.active { background: rgba(99,102,241,0.2); color: var(--accent-hover); }
+    .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+    .color-swatch.active { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
+    .stroke-control { display: flex; align-items: center; gap: 6px; padding: 0 8px; }
+    .stroke-control input[type=range] { width: 70px; accent-color: var(--accent); }
+    .canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #12141a; cursor: crosshair; }
+    #stage-container { width: 100%; height: 100%; }
+    .zoom-controls { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; box-shadow: var(--shadow); z-index: 10; }
+    .zoom-controls button { width: 32px; height: 32px; border: none; background: transparent; color: var(--text); border-radius: 6px; cursor: pointer; display: grid; place-items: center; font-size: 16px; }
+    .zoom-label { min-width: 52px; text-align: center; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .presence-bar { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; z-index: 10; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(6px); }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 400px; max-width: 92vw; box-shadow: var(--shadow); }
+    .modal h2 { font-size: 20px; margin-bottom: 6px; }
+    .modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+    .modal label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .modal input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; margin-bottom: 16px; outline: none; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+    .modal-actions .btn { flex: 1; }
+    .toast { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); padding: 10px 18px; border-radius: 10px; font-size: 13px; box-shadow: var(--shadow); z-index: 30; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+  </style>
 </head>
 <body>
-  <p>Redirecting to CollabBoard… <a href="/collabboard-static/index.html">Click here</a> if not redirected.</p>
+  <div id="app">
+    <div class="overlay" id="join-modal">
+      <div class="modal">
+        <h2>Join CollabBoard</h2>
+        <p>Lightweight real-time collaborative whiteboard. Enter your name and a board ID (or leave blank to create new).</p>
+        <label for="name-input">Your display name</label>
+        <input id="name-input" type="text" placeholder="e.g. Alex" maxlength="20" autocomplete="off" />
+        <label for="board-input">Board ID (optional)</label>
+        <input id="board-input" type="text" placeholder="Leave empty for new board" maxlength="40" autocomplete="off" />
+        <div class="modal-actions"><button class="btn btn-primary" id="join-btn">Join Board</button></div>
+      </div>
+    </div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header"><div class="logo">CB</div><div><h1>CollabBoard</h1><span>Lightweight Miro alternative</span></div></div>
+      <div class="section"><div class="section-title">You</div><div class="user-self"><div class="avatar" id="self-avatar">A</div><input type="text" id="self-name" placeholder="Your name" maxlength="20" /></div></div>
+      <div class="section"><div class="section-title">Collaborators <span id="user-count">(0)</span></div><div class="users-list" id="users-list"></div></div>
+      <div class="section"><div class="section-title">Board</div><div class="board-info">ID: <code id="board-id-display">—</code></div><div class="share-row"><input type="text" id="share-link" readonly value="" /><button class="btn btn-ghost btn-sm" id="copy-link-btn">Copy</button></div><button class="btn btn-ghost btn-block btn-sm" id="new-board-btn" style="margin-top:10px">+ New Board</button></div>
+      <div class="section" style="margin-top:auto; border-bottom:none;"><div class="section-title">Actions</div><button class="btn btn-ghost btn-block btn-sm" id="export-png-btn">Export PNG</button><button class="btn btn-ghost btn-block btn-sm" id="clear-btn" style="margin-top:6px; color:var(--danger)">Clear Board</button></div>
+    </aside>
+    <div class="main">
+      <div class="toolbar" id="toolbar">
+        <div class="tool-group"><button class="tool-btn active" data-tool="select">V</button><button class="tool-btn" data-tool="pan">H</button></div>
+        <div class="tool-group"><button class="tool-btn" data-tool="pen">P</button><button class="tool-btn" data-tool="rect">R</button><button class="tool-btn" data-tool="ellipse">O</button><button class="tool-btn" data-tool="line">L</button><button class="tool-btn" data-tool="arrow">A</button><button class="tool-btn" data-tool="text">T</button><button class="tool-btn" data-tool="sticky">S</button><button class="tool-btn" data-tool="eraser">E</button></div>
+        <div class="tool-group"><div class="color-swatch active" data-color="#6366f1" style="background:#6366f1"></div><div class="color-swatch" data-color="#ef4444" style="background:#ef4444"></div><div class="color-swatch" data-color="#22c55e" style="background:#22c55e"></div><div class="color-swatch" data-color="#eab308" style="background:#eab308"></div><div class="color-swatch" data-color="#f97316" style="background:#f97316"></div><div class="color-swatch" data-color="#ec4899" style="background:#ec4899"></div><div class="color-swatch" data-color="#ffffff" style="background:#ffffff"></div><div class="color-swatch" data-color="#1a1d24" style="background:#1a1d24; border:1px solid #555"></div></div>
+        <div class="tool-group stroke-control"><span style="font-size:11px;color:var(--text-muted)">Stroke</span><input type="range" id="stroke-width" min="1" max="20" value="3" /></div>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap"><div id="stage-container"></div><div class="presence-bar" id="presence-bar"></div><div class="zoom-controls"><button id="zoom-out">−</button><span class="zoom-label" id="zoom-label">100%</span><button id="zoom-in">+</button><button id="zoom-fit">⊡</button></div><div class="toast" id="toast"></div></div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+  <script type="module">
+    import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.18/+esm';
+    import { WebrtcProvider } from 'https://cdn.jsdelivr.net/npm/y-webrtc@10.3.0/+esm';
+    const COLORS = ['#6366f1','#ef4444','#22c55e','#eab308','#f97316','#ec4899','#06b6d4','#8b5cf6'];
+    let userId = localStorage.getItem('cb_uid') || crypto.randomUUID();
+    localStorage.setItem('cb_uid', userId);
+    let userName = localStorage.getItem('cb_name') || '';
+    let userColor = localStorage.getItem('cb_color') || COLORS[Math.floor(Math.random()*COLORS.length)];
+    localStorage.setItem('cb_color', userColor);
+    let boardId = new URLSearchParams(location.search).get('board') || '';
+    let currentTool = 'select', currentColor = '#6366f1', strokeWidth = 3;
+    let ydoc, yObjects, provider, awareness, stage, layer, transformer;
+    function showToast(msg, ms=2200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
+    function updateSelfUI(){document.getElementById('self-name').value=userName;const av=document.getElementById('self-avatar');av.textContent=(userName||'A')[0].toUpperCase();av.style.background=userColor;}
+    function initBoard(id){boardId=id||crypto.randomUUID().slice(0,8);const url=new URL(location.href);url.searchParams.set('board',boardId);history.replaceState({},'',url);document.getElementById('board-id-display').textContent=boardId;document.getElementById('share-link').value=location.href;ydoc=new Y.Doc();yObjects=ydoc.getMap('objects');provider=new WebrtcProvider(`collabboard-${boardId}`,ydoc,{signaling:['wss://signaling.yjs.dev']});awareness=provider.awareness;awareness.setLocalStateField('user',{id:userId,name:userName,color:userColor});yObjects.observe(()=>renderAllObjects());setTimeout(renderAllObjects,300);}
+    function initStage(){const wrap=document.getElementById('canvas-wrap');stage=new Konva.Stage({container:'stage-container',width:wrap.clientWidth,height:wrap.clientHeight});layer=new Konva.Layer();stage.add(layer);transformer=new Konva.Transformer({borderStroke:'#6366f1',anchorStroke:'#6366f1',anchorFill:'#fff',anchorSize:8});layer.add(transformer);stage.on('mousedown touchstart',onPointerDown);stage.on('mousemove touchmove',onPointerMove);stage.on('mouseup touchend',onPointerUp);stage.on('wheel',e=>{e.evt.preventDefault();const scaleBy=1.08,oldScale=stage.scaleX(),pointer=stage.getPointerPosition(),mousePointTo={x:(pointer.x-stage.x())/oldScale,y:(pointer.y-stage.y())/oldScale};const newScale=e.evt.deltaY>0?oldScale/scaleBy:oldScale*scaleBy;const clamped=Math.max(0.1,Math.min(5,newScale));stage.scale({x:clamped,y:clamped});stage.position({x:pointer.x-mousePointTo.x*clamped,y:pointer.y-mousePointTo.y*clamped});stage.batchDraw();document.getElementById('zoom-label').textContent=Math.round(clamped*100)+'%';});window.addEventListener('resize',()=>{stage.width(wrap.clientWidth);stage.height(wrap.clientHeight);});}
+    let isDrawing=false,drawingId=null,startPos=null;
+    function getPointerPos(){const pos=stage.getPointerPosition();if(!pos)return null;return stage.getAbsoluteTransform().copy().invert().point(pos);}
+    function createObject(type,attrs){const id=crypto.randomUUID().slice(0,10);const obj={id,type,...attrs,createdBy:userId,createdAt:Date.now()};yObjects.set(id,obj);return id;}
+    function updateObject(id,changes){const obj=yObjects.get(id);if(obj)yObjects.set(id,{...obj,...changes});}
+    function renderAllObjects(){layer.find('Line, Rect, Ellipse, Arrow, Text, Group').forEach(n=>{if(n!==transformer)n.destroy();});Array.from(yObjects.entries()).forEach(([id,obj])=>{let node;if(obj.type==='pen'&&obj.points){node=new Konva.Line({id,points:obj.points,stroke:obj.stroke,strokeWidth:obj.strokeWidth||3,lineCap:'round',lineJoin:'round',tension:0.4,draggable:currentTool==='select'});}else if(obj.type==='rect'){node=new Konva.Rect({id,x:obj.x,y:obj.y,width:obj.width,height:obj.height,fill:(obj.fill||'#6366f1')+'33',stroke:obj.stroke||obj.fill,strokeWidth:obj.strokeWidth||3,cornerRadius:4,draggable:currentTool==='select'});}else if(obj.type==='ellipse'){node=new Konva.Ellipse({id,x:obj.x+(obj.width||0)/2,y:obj.y+(obj.height||0)/2,radiusX:Math.abs((obj.width||0)/2),radiusY:Math.abs((obj.height||0)/2),fill:(obj.fill||'#6366f1')+'33',stroke:obj.stroke||obj.fill,strokeWidth:obj.strokeWidth||3,draggable:currentTool==='select'});}else if(obj.type==='line'||obj.type==='arrow'){node=new Konva.Arrow({id,points:obj.points||[obj.x,obj.y,obj.x+(obj.width||0),obj.y+(obj.height||0)],stroke:obj.stroke||'#6366f1',strokeWidth:obj.strokeWidth||3,fill:obj.stroke||'#6366f1',pointerLength:obj.type==='arrow'?12:0,pointerWidth:obj.type==='arrow'?10:0,draggable:currentTool==='select'});}else if(obj.type==='text'){node=new Konva.Text({id,x:obj.x,y:obj.y,text:obj.text||'Text',fontSize:18,fontFamily:'Inter',fill:obj.fill||'#e8eaed',draggable:currentTool==='select',width:obj.width||200});}else if(obj.type==='sticky'){const g=new Konva.Group({id,x:obj.x,y:obj.y,draggable:currentTool==='select'});g.add(new Konva.Rect({width:obj.width||160,height:obj.height||140,fill:obj.fill||'#eab308',shadowColor:'black',shadowBlur:8,shadowOpacity:0.25,cornerRadius:2}));g.add(new Konva.Text({text:obj.text||'Sticky',fontSize:16,fontFamily:'Caveat',fill:'#1a1d24',width:(obj.width||160)-16,padding:10}));node=g;}if(node){node.on('click tap',()=>{if(currentTool==='eraser'){yObjects.delete(id);}else if(currentTool==='select'){transformer.nodes([node]);layer.batchDraw();}});layer.add(node);}});layer.batchDraw();}
+    function onPointerDown(e){if(currentTool==='pan'||e.evt.button===1)return;const pos=getPointerPos();if(!pos)return;if(currentTool==='select'){if(e.target===stage)transformer.nodes([]);return;}if(currentTool==='eraser')return;isDrawing=true;startPos=pos;if(currentTool==='pen')drawingId=createObject('pen',{points:[pos.x,pos.y],stroke:currentColor,strokeWidth});else if(['rect','ellipse','line','arrow'].includes(currentTool))drawingId=createObject(currentTool,{x:pos.x,y:pos.y,width:0,height:0,points:[pos.x,pos.y,pos.x,pos.y],fill:currentColor,stroke:currentColor,strokeWidth});else if(currentTool==='sticky'){createObject('sticky',{x:pos.x,y:pos.y,width:160,height:140,fill:currentColor==='#ffffff'?'#eab308':currentColor,text:''});isDrawing=false;}else if(currentTool==='text'){createObject('text',{x:pos.x,y:pos.y,width:200,text:'Text',fill:currentColor});isDrawing=false;}}
+    function onPointerMove(){if(!isDrawing||!drawingId)return;const pos=getPointerPos();if(!pos||!startPos)return;const obj=yObjects.get(drawingId);if(!obj)return;if(currentTool==='pen')updateObject(drawingId,{points:obj.points.concat([pos.x,pos.y])});else if(['rect','ellipse'].includes(currentTool))updateObject(drawingId,{width:pos.x-startPos.x,height:pos.y-startPos.y});else if(['line','arrow'].includes(currentTool))updateObject(drawingId,{points:[startPos.x,startPos.y,pos.x,pos.y]});}
+    function onPointerUp(){isDrawing=false;drawingId=null;startPos=null;}
+    document.querySelectorAll('.tool-btn[data-tool]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tool-btn[data-tool]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentTool=btn.dataset.tool;if(currentTool!=='select')transformer.nodes([]);renderAllObjects();});});
+    document.querySelectorAll('.color-swatch').forEach(sw=>{sw.addEventListener('click',()=>{document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));sw.classList.add('active');currentColor=sw.dataset.color;});});
+    document.getElementById('stroke-width').addEventListener('input',e=>strokeWidth=parseInt(e.target.value,10));
+    document.getElementById('copy-link-btn').addEventListener('click',()=>{navigator.clipboard.writeText(document.getElementById('share-link').value);showToast('Invite link copied!');});
+    document.getElementById('new-board-btn').addEventListener('click',()=>{if(confirm('Create a new empty board?'))location.href=location.pathname;});
+    document.getElementById('export-png-btn').addEventListener('click',()=>{const a=document.createElement('a');a.href=stage.toDataURL({pixelRatio:2});a.download=`collabboard-${boardId}.png`;a.click();});
+    document.getElementById('clear-btn').addEventListener('click',()=>{if(confirm('Clear the entire board for everyone?'))ydoc.transact(()=>yObjects.clear());});
+    document.getElementById('self-name').addEventListener('change',e=>{userName=e.target.value.trim()||'Anonymous';localStorage.setItem('cb_name',userName);updateSelfUI();if(awareness)awareness.setLocalStateField('user',{id:userId,name:userName,color:userColor});});
+    document.getElementById('join-btn').addEventListener('click',()=>{const name=document.getElementById('name-input').value.trim()||'Anonymous';const bid=document.getElementById('board-input').value.trim();userName=name;localStorage.setItem('cb_name',userName);updateSelfUI();document.getElementById('join-modal').style.display='none';initStage();initBoard(bid||undefined);showToast('Joined board · Share the link to collaborate');});
+    if(userName)document.getElementById('name-input').value=userName;
+    if(boardId)document.getElementById('board-input').value=boardId;
+    const isEmbed=new URLSearchParams(location.search).get('embed')==='1';
+    if(isEmbed){if(!userName){userName='HA User';localStorage.setItem('cb_name',userName);}document.getElementById('name-input').value=userName;document.getElementById('join-modal').style.display='none';updateSelfUI();setTimeout(()=>{initStage();initBoard(boardId||undefined);showToast('Collaborative board ready');},80);}else{document.getElementById('name-input').focus();}
+  </script>
 </body>
 </html>
