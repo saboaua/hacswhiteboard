@@ -19,6 +19,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
 .btn{padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit}
 .btn:hover{border-color:var(--accent)}.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-ghost{background:transparent}.btn-sm{padding:4px 8px;font-size:11px}
 .toolbar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:44px}
 .tool-group{display:flex;align-items:center;gap:2px;padding:0 4px;border-right:1px solid var(--border)}
 .tool-group:last-child{border-right:none}
@@ -28,24 +29,27 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .color-swatch.active{border-color:var(--text);box-shadow:0 0 0 1px var(--accent)}
 .main{display:flex;flex:1;overflow:hidden}
 .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.sidebar-section{padding:10px;border-bottom:1px solid var(--border)}
-.sidebar-section h3{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:6px}
+.section{padding:10px;border-bottom:1px solid var(--border)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:6px}
+.user-self{display:flex;align-items:center;gap:8px}
 .user-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 0}
 .avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
 .status-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0}
 .canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
 #stage-container{width:100%;height:100%}
-.zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:var(--shadow)}
+.zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:var(--shadow);z-index:40}
 .zoom-controls button{width:28px;height:28px;border:none;border-radius:5px;background:transparent;color:var(--text);cursor:pointer;font-size:14px}
 .zoom-controls button:hover{background:var(--surface-2)}
 .zoom-label{font-size:11px;min-width:40px;text-align:center;color:var(--text-muted)}
 .toast{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:8px 16px;border-radius:8px;font-size:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
 .toast.show{opacity:1}
 .comments-list{flex:1;overflow-y:auto;padding:6px 10px;font-size:12px}
-.comment{padding:6px 0;border-bottom:1px solid var(--border)}
-.comment .meta{font-size:10px;color:var(--text-muted);margin-bottom:2px}
-.comment-compose{display:flex;flex-direction:column;gap:4px;margin-top:5px}
+.comment-item{padding:6px 0;border-bottom:1px solid var(--border)}
+.comment-meta{font-size:10px;color:var(--text-muted);margin-bottom:2px;display:flex;gap:6px}
+.comment-user{font-weight:600}
+.comment-text{word-break:break-word}
+.comment-compose{display:flex;flex-direction:column;gap:4px;margin-top:5px;padding:0 10px 10px}
 .comment-compose textarea{width:100%;min-height:44px;resize:vertical;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:5px;color:var(--text);font-size:11px;font-family:inherit;outline:none}
 .tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:280px;overflow-y:auto}
 .tpl-card{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;text-align:left}.tpl-card:hover{border-color:var(--accent)}
@@ -69,6 +73,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .board-info{font-size:11px;color:var(--text-muted)}code{background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:10px}
 .empty-comments{font-size:11px;color:var(--text-muted);text-align:center;padding:10px 6px}
 .stroke-control{display:flex;align-items:center;gap:4px;padding:0 4px}.stroke-control input[type=range]{width:50px;accent-color:var(--accent)}
+.share-row{display:flex;gap:4px;margin-top:4px}.share-row input{flex:1;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text)}
 </style>
 </head>
 <body>
@@ -92,20 +97,20 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
       <div class="modal-actions"><button class="btn" id="tpl-cancel">Cancel</button></div>
     </div>
   </div>
-  <div class="toolbar" id="toolbar">
+  <div class="toolbar">
     <div class="tool-group">
-      <button class="tool-btn active" data-tool="select" title="Select (V)">↖</button>
-      <button class="tool-btn" data-tool="pan" title="Pan (H)">✋</button>
-      <button class="tool-btn" data-tool="pen" title="Pen (P)">✏️</button>
-      <button class="tool-btn" data-tool="rect" title="Rectangle (R)">▭</button>
-      <button class="tool-btn" data-tool="ellipse" title="Ellipse (O)">○</button>
-      <button class="tool-btn" data-tool="line" title="Line (L)">／</button>
-      <button class="tool-btn" data-tool="arrow" title="Arrow (A)">→</button>
-      <button class="tool-btn" data-tool="text" title="Text (T)">T</button>
+      <button class="tool-btn active" data-tool="select" title="Select">↖</button>
+      <button class="tool-btn" data-tool="pan" title="Pan">✋</button>
+      <button class="tool-btn" data-tool="pen" title="Pen">✏️</button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle">▭</button>
+      <button class="tool-btn" data-tool="ellipse" title="Ellipse">○</button>
+      <button class="tool-btn" data-tool="line" title="Line">／</button>
+      <button class="tool-btn" data-tool="arrow" title="Arrow">→</button>
+      <button class="tool-btn" data-tool="text" title="Text">T</button>
       <button class="tool-btn" data-tool="sticky" title="Sticky">📌</button>
       <button class="tool-btn" data-tool="eraser" title="Eraser">⌫</button>
     </div>
-    <div class="tool-group" id="color-group">
+    <div class="tool-group">
       <button class="color-swatch active" data-color="#6366f1" style="background:#6366f1"></button>
       <button class="color-swatch" data-color="#ef4444" style="background:#ef4444"></button>
       <button class="color-swatch" data-color="#22c55e" style="background:#22c55e"></button>
@@ -117,29 +122,31 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
     </div>
     <div class="tool-group stroke-control"><span style="font-size:10px;color:var(--text-muted)">Stroke</span><input type="range" id="stroke-width" min="1" max="20" value="3"/></div>
     <div class="tool-group">
-      <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">↶</button>
-      <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)">↷</button>
-      <button class="tool-btn" id="tpl-btn" title="Templates">📋</button>
-      <button class="tool-btn" id="theme-btn" title="Theme">🌓</button>
+      <button class="tool-btn" id="undo-btn" title="Undo">↶</button>
+      <button class="tool-btn" id="redo-btn" title="Redo">↷</button>
+      <button class="tool-btn" id="templates-btn" title="Templates">📋</button>
+      <button class="tool-btn" id="theme-btn" title="Theme">Switch to Light</button>
       <button class="tool-btn" id="export-png-btn" title="Export PNG">📷</button>
+      <button class="tool-btn" id="clear-btn" title="Clear board">🗑</button>
+      <button class="tool-btn" id="new-board-btn" title="New board">＋</button>
     </div>
-    <div class="tool-group board-info">Board <code id="board-id-label">—</code></div>
+    <div class="tool-group board-info">ID: <code id="board-id-display">—</code></div>
   </div>
   <div class="main">
     <div class="sidebar">
-      <div class="sidebar-section">
-        <h3>You</h3>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="avatar" id="self-avatar">A</div>
-          <input id="self-name" type="text" maxlength="20" style="flex:1;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text);font-size:12px;outline:none"/>
-        </div>
+      <div class="section"><div class="section-title">You</div><div class="user-self"><div class="avatar" id="self-avatar">A</div><input type="text" id="self-name" placeholder="Your name" maxlength="20"/></div></div>
+      <div class="section">
+        <div class="section-title">Board</div>
+        <div class="board-info">ID: <code id="board-id-display">—</code></div>
+        <div class="share-row"><input type="text" id="share-link" readonly/><button class="btn btn-ghost btn-sm" id="copy-link-btn">Copy</button></div>
+        <div id="save-indicator" style="font-size:10px;color:var(--text-muted);margin-top:4px"></div>
       </div>
-      <div class="sidebar-section">
-        <h3>Online <span id="user-count">(1)</span></h3>
+      <div class="section">
+        <div class="section-title">Online <span id="user-count">(1)</span></div>
         <div id="users-list"></div>
       </div>
-      <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;min-height:0">
-        <h3>Comments <span id="comment-count">(0)</span></h3>
+      <div class="section" style="flex:1;display:flex;flex-direction:column;min-height:0">
+        <div class="section-title">Comments <span id="comment-count">(0)</span></div>
         <div class="comments-list" id="comments-list"></div>
         <div class="comment-compose">
           <textarea id="comment-input" placeholder="@mention or comment…"></textarea>
