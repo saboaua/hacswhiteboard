@@ -63,7 +63,10 @@ let editorTextColor = null;
 function applyTheme() {
 document.documentElement.classList.toggle('light', theme === 'light');
 const b = document.getElementById('theme-btn');
-if (b) b.textContent = theme === 'light' ? 'Switch to Dark' : 'Switch to Light';
+if (b) {
+b.textContent = theme === 'light' ? '🌙' : '☀️';
+b.title = theme === 'light' ? 'Switch to Dark' : 'Switch to Light';
+}
 }
 applyTheme();
 function showToast(m, ms = 2200) {
@@ -539,7 +542,6 @@ if (input) input.value = '';
 renderComments();
 scheduleSave();
 }
-// Event listeners
 document.getElementById('join-btn').addEventListener('click', () => {
 try {
 userName = (document.getElementById('name-input').value || '').trim() || 'Anon';
