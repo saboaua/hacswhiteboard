@@ -10,7 +10,7 @@
   <style>
     :root { --bg: #0f1115; --surface: #1a1d24; --surface-2: #242830; --border: #2e333d; --text: #e8eaed; --text-muted: #9aa0a6; --accent: #6366f1; --accent-hover: #818cf8; --danger: #ef4444; --success: #22c55e; --radius: 10px; --shadow: 0 4px 24px rgba(0,0,0,0.4); }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    html, body { height: 100%; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0f1115; color: #e8eaed; }
     #app { display: flex; height: 100vh; width: 100vw; }
     .sidebar { width: 280px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 20; }
     .sidebar-header { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
@@ -102,8 +102,20 @@
   <script type="module">
     import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.6.18/+esm';
     import { WebrtcProvider } from 'https://cdn.jsdelivr.net/npm/y-webrtc@10.3.0/+esm';
+
+    function uuid() {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0;
+        var v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     const COLORS = ['#6366f1','#ef4444','#22c55e','#eab308','#f97316','#ec4899','#06b6d4','#8b5cf6'];
-    let userId = localStorage.getItem('cb_uid') || crypto.randomUUID();
+    let userId = localStorage.getItem('cb_uid') || uuid();
     localStorage.setItem('cb_uid', userId);
     let userName = localStorage.getItem('cb_name') || '';
     let userColor = localStorage.getItem('cb_color') || COLORS[Math.floor(Math.random()*COLORS.length)];
@@ -113,11 +125,11 @@
     let ydoc, yObjects, provider, awareness, stage, layer, transformer;
     function showToast(msg, ms=2200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
     function updateSelfUI(){document.getElementById('self-name').value=userName;const av=document.getElementById('self-avatar');av.textContent=(userName||'A')[0].toUpperCase();av.style.background=userColor;}
-    function initBoard(id){boardId=id||crypto.randomUUID().slice(0,8);const url=new URL(location.href);url.searchParams.set('board',boardId);history.replaceState({},'',url);document.getElementById('board-id-display').textContent=boardId;document.getElementById('share-link').value=location.href;ydoc=new Y.Doc();yObjects=ydoc.getMap('objects');provider=new WebrtcProvider(`collabboard-${boardId}`,ydoc,{signaling:['wss://signaling.yjs.dev']});awareness=provider.awareness;awareness.setLocalStateField('user',{id:userId,name:userName,color:userColor});yObjects.observe(()=>renderAllObjects());setTimeout(renderAllObjects,300);}
+    function initBoard(id){boardId=id||uuid().slice(0,8);const url=new URL(location.href);url.searchParams.set('board',boardId);history.replaceState({},'',url);document.getElementById('board-id-display').textContent=boardId;document.getElementById('share-link').value=location.href;ydoc=new Y.Doc();yObjects=ydoc.getMap('objects');provider=new WebrtcProvider(`collabboard-${boardId}`,ydoc,{signaling:['wss://signaling.yjs.dev']});awareness=provider.awareness;awareness.setLocalStateField('user',{id:userId,name:userName,color:userColor});yObjects.observe(()=>renderAllObjects());setTimeout(renderAllObjects,300);}
     function initStage(){const wrap=document.getElementById('canvas-wrap');stage=new Konva.Stage({container:'stage-container',width:wrap.clientWidth,height:wrap.clientHeight});layer=new Konva.Layer();stage.add(layer);transformer=new Konva.Transformer({borderStroke:'#6366f1',anchorStroke:'#6366f1',anchorFill:'#fff',anchorSize:8});layer.add(transformer);stage.on('mousedown touchstart',onPointerDown);stage.on('mousemove touchmove',onPointerMove);stage.on('mouseup touchend',onPointerUp);stage.on('wheel',e=>{e.evt.preventDefault();const scaleBy=1.08,oldScale=stage.scaleX(),pointer=stage.getPointerPosition(),mousePointTo={x:(pointer.x-stage.x())/oldScale,y:(pointer.y-stage.y())/oldScale};const newScale=e.evt.deltaY>0?oldScale/scaleBy:oldScale*scaleBy;const clamped=Math.max(0.1,Math.min(5,newScale));stage.scale({x:clamped,y:clamped});stage.position({x:pointer.x-mousePointTo.x*clamped,y:pointer.y-mousePointTo.y*clamped});stage.batchDraw();document.getElementById('zoom-label').textContent=Math.round(clamped*100)+'%';});window.addEventListener('resize',()=>{stage.width(wrap.clientWidth);stage.height(wrap.clientHeight);});}
     let isDrawing=false,drawingId=null,startPos=null;
     function getPointerPos(){const pos=stage.getPointerPosition();if(!pos)return null;return stage.getAbsoluteTransform().copy().invert().point(pos);}
-    function createObject(type,attrs){const id=crypto.randomUUID().slice(0,10);const obj={id,type,...attrs,createdBy:userId,createdAt:Date.now()};yObjects.set(id,obj);return id;}
+    function createObject(type,attrs){const id=uuid().slice(0,10);const obj={id,type,...attrs,createdBy:userId,createdAt:Date.now()};yObjects.set(id,obj);return id;}
     function updateObject(id,changes){const obj=yObjects.get(id);if(obj)yObjects.set(id,{...obj,...changes});}
     function renderAllObjects(){layer.find('Line, Rect, Ellipse, Arrow, Text, Group').forEach(n=>{if(n!==transformer)n.destroy();});Array.from(yObjects.entries()).forEach(([id,obj])=>{let node;if(obj.type==='pen'&&obj.points){node=new Konva.Line({id,points:obj.points,stroke:obj.stroke,strokeWidth:obj.strokeWidth||3,lineCap:'round',lineJoin:'round',tension:0.4,draggable:currentTool==='select'});}else if(obj.type==='rect'){node=new Konva.Rect({id,x:obj.x,y:obj.y,width:obj.width,height:obj.height,fill:(obj.fill||'#6366f1')+'33',stroke:obj.stroke||obj.fill,strokeWidth:obj.strokeWidth||3,cornerRadius:4,draggable:currentTool==='select'});}else if(obj.type==='ellipse'){node=new Konva.Ellipse({id,x:obj.x+(obj.width||0)/2,y:obj.y+(obj.height||0)/2,radiusX:Math.abs((obj.width||0)/2),radiusY:Math.abs((obj.height||0)/2),fill:(obj.fill||'#6366f1')+'33',stroke:obj.stroke||obj.fill,strokeWidth:obj.strokeWidth||3,draggable:currentTool==='select'});}else if(obj.type==='line'||obj.type==='arrow'){node=new Konva.Arrow({id,points:obj.points||[obj.x,obj.y,obj.x+(obj.width||0),obj.y+(obj.height||0)],stroke:obj.stroke||'#6366f1',strokeWidth:obj.strokeWidth||3,fill:obj.stroke||'#6366f1',pointerLength:obj.type==='arrow'?12:0,pointerWidth:obj.type==='arrow'?10:0,draggable:currentTool==='select'});}else if(obj.type==='text'){node=new Konva.Text({id,x:obj.x,y:obj.y,text:obj.text||'Text',fontSize:18,fontFamily:'Inter',fill:obj.fill||'#e8eaed',draggable:currentTool==='select',width:obj.width||200});}else if(obj.type==='sticky'){const g=new Konva.Group({id,x:obj.x,y:obj.y,draggable:currentTool==='select'});g.add(new Konva.Rect({width:obj.width||160,height:obj.height||140,fill:obj.fill||'#eab308',shadowColor:'black',shadowBlur:8,shadowOpacity:0.25,cornerRadius:2}));g.add(new Konva.Text({text:obj.text||'Sticky',fontSize:16,fontFamily:'Caveat',fill:'#1a1d24',width:(obj.width||160)-16,padding:10}));node=g;}if(node){node.on('click tap',()=>{if(currentTool==='eraser'){yObjects.delete(id);}else if(currentTool==='select'){transformer.nodes([node]);layer.batchDraw();}});layer.add(node);}});layer.batchDraw();}
     function onPointerDown(e){if(currentTool==='pan'||e.evt.button===1)return;const pos=getPointerPos();if(!pos)return;if(currentTool==='select'){if(e.target===stage)transformer.nodes([]);return;}if(currentTool==='eraser')return;isDrawing=true;startPos=pos;if(currentTool==='pen')drawingId=createObject('pen',{points:[pos.x,pos.y],stroke:currentColor,strokeWidth});else if(['rect','ellipse','line','arrow'].includes(currentTool))drawingId=createObject(currentTool,{x:pos.x,y:pos.y,width:0,height:0,points:[pos.x,pos.y,pos.x,pos.y],fill:currentColor,stroke:currentColor,strokeWidth});else if(currentTool==='sticky'){createObject('sticky',{x:pos.x,y:pos.y,width:160,height:140,fill:currentColor==='#ffffff'?'#eab308':currentColor,text:''});isDrawing=false;}else if(currentTool==='text'){createObject('text',{x:pos.x,y:pos.y,width:200,text:'Text',fill:currentColor});isDrawing=false;}}
