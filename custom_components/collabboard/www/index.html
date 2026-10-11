@@ -23,7 +23,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .toolbar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:44px}
 .tool-group{display:flex;align-items:center;gap:2px;padding:0 4px;border-right:1px solid var(--border)}
 .tool-group:last-child{border-right:none}
-.tool-btn{width:32px;height:32px;border:none;border-radius:6px;background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+.tool-btn{width:34px;height:34px;border:none;border-radius:8px;background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s,color .15s}.tool-btn svg{pointer-events:none;flex-shrink:0}
 .tool-btn:hover{background:var(--surface-2)}.tool-btn.active{background:var(--accent);color:#fff}
 .color-swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
 .color-swatch.active{border-color:var(--text);box-shadow:0 0 0 1px var(--accent)}
@@ -73,7 +73,7 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
 .board-info{font-size:11px;color:var(--text-muted)}code{background:var(--surface-2);padding:1px 4px;border-radius:3px;font-size:10px}
 .empty-comments{font-size:11px;color:var(--text-muted);text-align:center;padding:10px 6px}
 .stroke-control{display:flex;align-items:center;gap:4px;padding:0 4px}.stroke-control input[type=range]{width:50px;accent-color:var(--accent)}
-.share-row{display:flex;gap:4px;margin-top:4px}.share-row input{flex:1;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:5px;background:var(--text)}
+.share-row{display:flex;gap:4px;margin-top:4px}.share-row input{flex:1;padding:4px 6px;font-size:11px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--text)}
 </style>
 </head>
 <body>
@@ -99,16 +99,16 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
   </div>
   <div class="toolbar">
     <div class="tool-group">
-      <button class="tool-btn active" data-tool="select" title="Select">↖</button>
-      <button class="tool-btn" data-tool="pan" title="Pan">✋</button>
-      <button class="tool-btn" data-tool="pen" title="Pen">✏️</button>
-      <button class="tool-btn" data-tool="rect" title="Rectangle">▭</button>
-      <button class="tool-btn" data-tool="ellipse" title="Ellipse">○</button>
-      <button class="tool-btn" data-tool="line" title="Line">／</button>
-      <button class="tool-btn" data-tool="arrow" title="Arrow">→</button>
-      <button class="tool-btn" data-tool="text" title="Text">T</button>
-      <button class="tool-btn" data-tool="sticky" title="Sticky">📌</button>
-      <button class="tool-btn" data-tool="eraser" title="Eraser">⌫</button>
+      <button class="tool-btn active" data-tool="select" title="Select (V)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
+      <button class="tool-btn" data-tool="pan" title="Pan (H)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></button>
+      <button class="tool-btn" data-tool="pen" title="Pen (P)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle (R)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></button>
+      <button class="tool-btn" data-tool="ellipse" title="Ellipse (O)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></button>
+      <button class="tool-btn" data-tool="line" title="Line (L)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19L19 5"/></svg></button>
+      <button class="tool-btn" data-tool="arrow" title="Arrow (A)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+      <button class="tool-btn" data-tool="text" title="Text (T)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg></button>
+      <button class="tool-btn" data-tool="sticky" title="Sticky note"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/><path d="M15 3v6h6"/></svg></button>
+      <button class="tool-btn" data-tool="eraser" title="Eraser"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg></button>
     </div>
     <div class="tool-group">
       <button class="color-swatch active" data-color="#6366f1" style="background:#6366f1"></button>
@@ -122,13 +122,13 @@ html,body{height:100%;overflow:hidden;font-family:Inter,system-ui,sans-serif;bac
     </div>
     <div class="tool-group stroke-control"><span style="font-size:10px;color:var(--text-muted)">Stroke</span><input type="range" id="stroke-width" min="1" max="20" value="3"/></div>
     <div class="tool-group">
-      <button class="tool-btn" id="undo-btn" title="Undo">↶</button>
-      <button class="tool-btn" id="redo-btn" title="Redo">↷</button>
-      <button class="tool-btn" id="templates-btn" title="Templates">📋</button>
-      <button class="tool-btn" id="theme-btn" title="Switch to Light">☀️</button>
-      <button class="tool-btn" id="export-png-btn" title="Export PNG">📷</button>
-      <button class="tool-btn" id="clear-btn" title="Clear board">🗑</button>
-      <button class="tool-btn" id="new-board-btn" title="New board">＋</button>
+      <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.8L3 13"/></svg></button>
+      <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6.7 2.8L21 13"/></svg></button>
+      <button class="tool-btn" id="templates-btn" title="Templates"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="7" x="3" y="3" rx="1"/><rect width="9" height="7" x="3" y="14" rx="1"/><rect width="5" height="7" x="16" y="14" rx="1"/></svg></button>
+      <button class="tool-btn" id="theme-btn" title="Switch to Light"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+      <button class="tool-btn" id="export-png-btn" title="Export PNG"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></button>
+      <button class="tool-btn" id="clear-btn" title="Clear board"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+      <button class="tool-btn" id="new-board-btn" title="New board"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
     </div>
     <div class="tool-group board-info">ID: <code id="board-id-display">—</code></div>
   </div>
