@@ -466,20 +466,31 @@ editingId = id;
 const wrap = document.getElementById('editor-wrap');
 const ed = document.getElementById('inline-editor');
 if (!wrap || !ed) return;
-const box = node.getClientRect({ relativeTo: stage });
+const parent = wrap.parentElement;
+const parentRect = parent.getBoundingClientRect();
+const stageBox = stage.container().getBoundingClientRect();
+const localBox = node.getClientRect({ relativeTo: stage });
 const scale = stage.scaleX();
+const screenX = stageBox.left + localBox.x * scale + stage.x();
+const screenY = stageBox.top + localBox.y * scale + stage.y();
+const screenW = Math.abs(localBox.width) * scale;
+const screenH = Math.abs(localBox.height) * scale;
 wrap.classList.add('show');
 wrap.style.display = 'flex';
-wrap.style.left = (box.x * scale + stage.x()) + 'px';
-wrap.style.top = (box.y * scale + stage.y()) + 'px';
-ed.style.width = Math.max(120, (box.width || 200) * scale) + 'px';
-ed.style.minHeight = Math.max(40, (box.height || 40) * scale) + 'px';
+wrap.style.left = Math.max(0, screenX - parentRect.left) + 'px';
+wrap.style.top = Math.max(0, screenY - parentRect.top) + 'px';
+ed.style.width = Math.max(120, screenW || 200) + 'px';
+ed.style.minHeight = Math.max(36, Math.min(220, screenH || 40)) + 'px';
 ed.value = obj.text || '';
 ed.className = 'inline-editor' + (obj.type === 'sticky' ? ' sticky-edit' : '');
+if (obj.type === 'rect' || obj.type === 'ellipse') {
+ed.placeholder = 'Type label for this shape…';
+} else {
+ed.placeholder = '';
+}
 const curColor = obj.textColor || (obj.type === 'text' ? obj.fill : null) || currentColor;
 setEditorColorUI(curColor);
-ed.focus();
-ed.select();
+setTimeout(() => { ed.focus(); ed.select(); }, 30);
 }
 function initStage() {
 const container = document.getElementById('stage-container');
@@ -494,8 +505,21 @@ stage.on('mousemove touchmove', onPointerMove);
 stage.on('mouseup touchend', onPointerUp);
 stage.on('contextmenu', e => {
 e.evt.preventDefault();
-const pos = stage.getPointerPosition();
-showContextMenu(pos.x, pos.y, getSelectedIds());
+e.evt.stopPropagation();
+let ids = getSelectedIds();
+const target = e.target;
+if (target && target !== stage) {
+let n = target;
+while (n && n !== stage && !n.id()) n = n.getParent && n.getParent();
+if (n && n.id && n.id()) {
+const tid = n.id();
+if (!ids.includes(tid)) {
+ids = [tid];
+if (transformer) { transformer.nodes([n]); layer.batchDraw(); }
+}
+}
+}
+showContextMenu(e.evt.clientX, e.evt.clientY, ids);
 });
 stage.on('wheel', e => {
 e.evt.preventDefault();
@@ -636,7 +660,11 @@ hideContextMenu();
 });
 }
 document.addEventListener('click', e => {
+if (e.button === 2) return;
 if (!e.target.closest('#ctx-menu')) hideContextMenu();
+});
+document.addEventListener('contextmenu', e => {
+if (e.target.closest('#ctx-menu')) e.preventDefault();
 });
 document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => btn.addEventListener('click', () => {
 document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
