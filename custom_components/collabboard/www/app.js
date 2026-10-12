@@ -806,6 +806,32 @@ if (copyLink) copyLink.addEventListener('click', () => {
 const sl = document.getElementById('share-link');
 if (sl && sl.value) { navigator.clipboard.writeText(sl.value); showToast('Link copied'); }
 });
+
+const sidebarEl = document.querySelector('.sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+function setSidebarCollapsed(collapsed) {
+  if (!sidebarEl) return;
+  sidebarEl.classList.toggle('collapsed', collapsed);
+  localStorage.setItem('cb_sidebar', collapsed ? '0' : '1');
+  if (sidebarToggle) {
+    sidebarToggle.title = collapsed ? 'Show sidebar' : 'Hide sidebar';
+  }
+  setTimeout(() => {
+    const container = document.getElementById('stage-container');
+    if (stage && container) {
+      stage.width(container.clientWidth);
+      stage.height(container.clientHeight);
+      stage.batchDraw();
+    }
+  }, 220);
+}
+if (sidebarToggle && sidebarEl) {
+  if (localStorage.getItem('cb_sidebar') === '0') setSidebarCollapsed(true);
+  sidebarToggle.addEventListener('click', () => {
+    setSidebarCollapsed(!sidebarEl.classList.contains('collapsed'));
+  });
+}
+
 const clearBtn = document.getElementById('clear-btn');
 if (clearBtn) clearBtn.addEventListener('click', () => {
 if (!yObjects) return;
